@@ -4,30 +4,24 @@ name: release
 on:
   release:
     types:
-      - published
+      - created
 
 env:
-  DOCKER_REGISTRY: docker.pkg.github.com
-  GITHUB_PACKAGE: my-package
+  DOCKER_IMAGE: ghcr.io/icetdrinker/no-github-package-docker-registry-package-event
 
 jobs:
   docker-build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
-      - name: Set DOCKER_IMAGE
-        # this sets an environment variable subsequent steps in the same job can use
-        run: |
-          TAG=$(echo "${{ github.ref }}" | cut -d'/' -f3)
-          echo "::set-env name=DOCKER_IMAGE::${DOCKER_REGISTRY}/${{ github.repository }}/${GITHUB_PACKAGE}:${TAG}"
-      - uses: azure/docker-login@v1
-        # this logs us into GitHub Packages (docker service)
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
         with:
-          login-server: docker.pkg.github.com
-          username: ${GITHUB_ACTOR}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.TOKEN }}
       - name: Pull a known image
         run: docker pull debian:buster-slim
       - name: Re-tag that image
-        run: docker image tag debian:buster-slim ${DOCKER_IMAGE}
+        run: docker image tag debian:buster-slim "${DOCKER_IMAGE}:latest"
       - name: Push that image
-        run: docker push ${DOCKER_IMAGE}
+        run: docker push "${DOCKER_IMAGE}:latest"

@@ -2,11 +2,14 @@
 ---
 name: qualify
 on:
-  package:
+  registry_package:
+    types:
+      - published
+      - updated
 
 jobs:
   qualify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       # we never get here and that is a bug!
       - name: Dump GitHub event

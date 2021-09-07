@@ -1,4 +1,4 @@
-name: context
+name: continue-on-error
 on:
   workflow_dispatch:
   pull_request:
